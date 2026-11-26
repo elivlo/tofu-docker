@@ -21,10 +21,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          versions=$(gh api 'repos/opentofu/opentofu/releases?per_page=100' \
-            --jq '.[] | select(.prerelease == false and .draft == false) | .tag_name' \
+          set -o pipefail
+          versions=$(gh release list -R opentofu/opentofu -L 100 \
+            --exclude-pre-releases --exclude-drafts --json tagName --jq '.[].tagName' \
             | sed 's/^v//' | sort -rV | awk -F. '!seen[$1"."$2]++' | head -3)
           matrix=$(jq -R -s -c 'split("\n")[:-1] | to_entries | map({version: .value, minor: (.value | split(".")[:2] | join(".")), latest: (.key == 0)})' <<< "$versions")
+          echo "$matrix"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   build:

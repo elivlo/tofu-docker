@@ -1,4 +1,4 @@
-ARG TOFU_VERSION
+ARG TOFU_VERSION=1
 FROM ghcr.io/opentofu/opentofu:${TOFU_VERSION}-minimal AS tofu
 
 FROM alpine:3
